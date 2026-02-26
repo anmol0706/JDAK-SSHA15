@@ -1,0 +1,2090 @@
+{
+    "project": "AI Interviewer Platform",
+    "version": "1.0.0",
+    "description": "Adaptive AI Interviewer with Cognitive and Behavioral Analysis",
+    "baseUrl": "http://localhost:5000/api",
+    "websocketUrl": "ws://localhost:5000",
+    "authentication": {
+        "type": "Bearer JWT",
+        "tokenExpiry": "7d",
+        "refreshTokenExpiry": "30d",
+        "headerFormat": "Authorization: Bearer <token>"
+    },
+    "rateLimiting": {
+        "windowMs": 900000,
+        "maxRequests": 100,
+        "scope": "/api"
+    },
+    "endpoints": {
+        "health": {
+            "GET /api/health": {
+                "description": "Health check",
+                "access": "public",
+                "response": {
+                    "success": true,
+                    "message": "AI Interviewer API is running",
+                    "timestamp": "ISO8601",
+                    "version": "1.0.0"
+                }
+            }
+        },
+        "auth": {
+            "POST /api/auth/register": {
+                "description": "Register a new user",
+                "access": "public",
+                "requestBody": {
+                    "email": {
+                        "type": "string",
+                        "required": true,
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "required": true,
+                        "minLength": 8,
+                        "pattern": "uppercase+lowercase+number"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "required": true,
+                        "maxLength": 50
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "required": true,
+                        "maxLength": 50
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "message": "Registration successful",
+                    "data": {
+                        "user": {
+                            "id": "ObjectId",
+                            "email": "string",
+                            "firstName": "string",
+                            "lastName": "string",
+                            "fullName": "string",
+                            "role": "user",
+                            "preferences": {
+                                "interviewerPersonality": "professional",
+                                "difficultyLevel": "medium",
+                                "voiceEnabled": true,
+                                "emailNotifications": true,
+                                "timezone": "UTC"
+                            },
+                            "subscription": {
+                                "plan": "free",
+                                "interviewsRemaining": 5
+                            }
+                        },
+                        "tokens": {
+                            "accessToken": "jwt-string",
+                            "refreshToken": "jwt-string"
+                        }
+                    }
+                },
+                "errors": [
+                    {
+                        "status": 409,
+                        "code": "USER_EXISTS",
+                        "message": "User with this email already exists"
+                    },
+                    {
+                        "status": 400,
+                        "code": "VALIDATION_ERROR",
+                        "message": "Validation failed"
+                    }
+                ]
+            },
+            "POST /api/auth/login": {
+                "description": "Login user",
+                "access": "public",
+                "requestBody": {
+                    "email": {
+                        "type": "string",
+                        "required": true,
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "required": true
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "message": "Login successful",
+                    "data": {
+                        "user": {
+                            "id": "ObjectId",
+                            "email": "string",
+                            "firstName": "string",
+                            "lastName": "string",
+                            "fullName": "string",
+                            "avatar": "string|null",
+                            "role": "string",
+                            "profile": {
+                                "title": "string",
+                                "company": "string",
+                                "experience": "number",
+                                "targetRole": "string",
+                                "targetCompany": "string",
+                                "skills": [
+                                    "string"
+                                ],
+                                "preferredInterviewTypes": [
+                                    "string"
+                                ]
+                            },
+                            "preferences": {
+                                "interviewerPersonality": "string",
+                                "difficultyLevel": "string",
+                                "voiceEnabled": "boolean",
+                                "emailNotifications": "boolean",
+                                "timezone": "string"
+                            },
+                            "statistics": {
+                                "totalInterviews": "number",
+                                "totalQuestions": "number",
+                                "averageScore": "number",
+                                "streakDays": "number",
+                                "lastInterviewDate": "Date|null",
+                                "bestCategory": "string|null",
+                                "weakestCategory": "string|null"
+                            },
+                            "subscription": {
+                                "plan": "string",
+                                "interviewsRemaining": "number",
+                                "features": [
+                                    "string"
+                                ]
+                            }
+                        },
+                        "tokens": {
+                            "accessToken": "jwt-string",
+                            "refreshToken": "jwt-string"
+                        }
+                    }
+                },
+                "errors": [
+                    {
+                        "status": 401,
+                        "code": "INVALID_CREDENTIALS",
+                        "message": "Invalid email or password"
+                    },
+                    {
+                        "status": 401,
+                        "code": "ACCOUNT_INACTIVE",
+                        "message": "Account has been deactivated"
+                    }
+                ]
+            },
+            "POST /api/auth/logout": {
+                "description": "Logout user",
+                "access": "public",
+                "requestBody": {
+                    "refreshToken": {
+                        "type": "string",
+                        "required": false
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "message": "Logged out successfully"
+                }
+            },
+            "POST /api/auth/refresh": {
+                "description": "Refresh access token",
+                "access": "public",
+                "requestBody": {
+                    "refreshToken": {
+                        "type": "string",
+                        "required": true
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "data": {
+                        "tokens": {
+                            "accessToken": "jwt-string",
+                            "refreshToken": "jwt-string"
+                        }
+                    }
+                },
+                "errors": [
+                    {
+                        "status": 401,
+                        "code": "NO_REFRESH_TOKEN",
+                        "message": "Refresh token required"
+                    },
+                    {
+                        "status": 401,
+                        "code": "INVALID_REFRESH_TOKEN",
+                        "message": "Invalid or expired refresh token"
+                    }
+                ]
+            },
+            "GET /api/auth/me": {
+                "description": "Get current user profile",
+                "access": "private",
+                "response": {
+                    "success": true,
+                    "data": {
+                        "user": {
+                            "id": "ObjectId",
+                            "email": "string",
+                            "firstName": "string",
+                            "lastName": "string",
+                            "fullName": "string",
+                            "avatar": "string|null",
+                            "role": "string",
+                            "profile": "UserProfile",
+                            "preferences": "UserPreferences",
+                            "statistics": "UserStatistics",
+                            "subscription": "UserSubscription",
+                            "emailVerified": "boolean",
+                            "createdAt": "Date"
+                        }
+                    }
+                }
+            },
+            "PUT /api/auth/profile": {
+                "description": "Update user profile",
+                "access": "private",
+                "requestBody": {
+                    "firstName": {
+                        "type": "string",
+                        "required": false,
+                        "maxLength": 50
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "required": false,
+                        "maxLength": 50
+                    },
+                    "avatar": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "profile.title": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "profile.company": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "profile.experience": {
+                        "type": "integer",
+                        "required": false,
+                        "min": 0,
+                        "max": 50
+                    },
+                    "profile.targetRole": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "profile.targetCompany": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "profile.skills": {
+                        "type": "array",
+                        "items": "string",
+                        "required": false
+                    },
+                    "profile.preferredInterviewTypes": {
+                        "type": "array",
+                        "items": "string",
+                        "required": false
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "message": "Profile updated successfully",
+                    "data": {
+                        "user": {
+                            "id": "ObjectId",
+                            "email": "string",
+                            "firstName": "string",
+                            "lastName": "string",
+                            "fullName": "string",
+                            "avatar": "string|null",
+                            "profile": "UserProfile"
+                        }
+                    }
+                }
+            },
+            "PUT /api/auth/preferences": {
+                "description": "Update user preferences",
+                "access": "private",
+                "requestBody": {
+                    "interviewerPersonality": {
+                        "type": "string",
+                        "enum": [
+                            "strict",
+                            "friendly",
+                            "professional"
+                        ],
+                        "required": false
+                    },
+                    "difficultyLevel": {
+                        "type": "string",
+                        "enum": [
+                            "easy",
+                            "medium",
+                            "hard",
+                            "expert"
+                        ],
+                        "required": false
+                    },
+                    "voiceEnabled": {
+                        "type": "boolean",
+                        "required": false
+                    },
+                    "emailNotifications": {
+                        "type": "boolean",
+                        "required": false
+                    },
+                    "timezone": {
+                        "type": "string",
+                        "required": false
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "message": "Preferences updated successfully",
+                    "data": {
+                        "preferences": "UserPreferences"
+                    }
+                }
+            },
+            "PUT /api/auth/password": {
+                "description": "Change password",
+                "access": "private",
+                "requestBody": {
+                    "currentPassword": {
+                        "type": "string",
+                        "required": true
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "required": true,
+                        "minLength": 8,
+                        "pattern": "uppercase+lowercase+number"
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "message": "Password changed successfully"
+                },
+                "errors": [
+                    {
+                        "status": 401,
+                        "code": "INVALID_PASSWORD",
+                        "message": "Current password is incorrect"
+                    }
+                ]
+            }
+        },
+        "interviews": {
+            "POST /api/interviews/start": {
+                "description": "Start a new interview session",
+                "access": "private + subscription check",
+                "requestBody": {
+                    "interviewType": {
+                        "type": "string",
+                        "required": true,
+                        "enum": [
+                            "hr",
+                            "technical",
+                            "behavioral",
+                            "system-design"
+                        ]
+                    },
+                    "subCategory": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "personality": {
+                        "type": "string",
+                        "required": false,
+                        "enum": [
+                            "strict",
+                            "friendly",
+                            "professional"
+                        ]
+                    },
+                    "targetCompany": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "targetRole": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "difficulty": {
+                        "type": "string",
+                        "required": false,
+                        "enum": [
+                            "easy",
+                            "medium",
+                            "hard",
+                            "expert"
+                        ]
+                    },
+                    "voiceEnabled": {
+                        "type": "boolean",
+                        "required": false
+                    },
+                    "totalQuestions": {
+                        "type": "integer",
+                        "required": false,
+                        "min": 5,
+                        "max": 30
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "message": "Interview started successfully",
+                    "data": {
+                        "sessionId": "uuid-v4",
+                        "interviewType": "string",
+                        "personality": "string",
+                        "difficulty": "string",
+                        "totalQuestions": "number",
+                        "currentQuestion": {
+                            "index": 0,
+                            "question": "string",
+                            "type": "string",
+                            "difficulty": "string",
+                            "expectedTopics": [
+                                "string"
+                            ],
+                            "timeAllowed": 120
+                        },
+                        "voiceEnabled": "boolean"
+                    }
+                },
+                "errors": [
+                    {
+                        "status": 403,
+                        "code": "LIMIT_REACHED",
+                        "message": "Free interview limit reached. Please upgrade."
+                    },
+                    {
+                        "status": 403,
+                        "code": "SUBSCRIPTION_EXPIRED",
+                        "message": "Your subscription has expired."
+                    }
+                ]
+            },
+            "POST /api/interviews/:sessionId/answer": {
+                "description": "Submit answer for current question",
+                "access": "private",
+                "params": {
+                    "sessionId": {
+                        "type": "string",
+                        "required": true
+                    }
+                },
+                "requestBody": {
+                    "answer": {
+                        "type": "string",
+                        "required": false
+                    },
+                    "audioData": {
+                        "type": "string",
+                        "required": false,
+                        "format": "base64"
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "data": {
+                        "evaluation": {
+                            "scores": {
+                                "correctness": {
+                                    "score": "0-100",
+                                    "maxScore": 100,
+                                    "feedback": "string"
+                                },
+                                "reasoning": {
+                                    "score": "0-100",
+                                    "maxScore": 100,
+                                    "feedback": "string"
+                                },
+                                "communication": {
+                                    "score": "0-100",
+                                    "maxScore": 100,
+                                    "feedback": "string"
+                                },
+                                "structure": {
+                                    "score": "0-100",
+                                    "maxScore": 100,
+                                    "feedback": "string"
+                                },
+                                "confidence": {
+                                    "score": "0-100",
+                                    "maxScore": 100,
+                                    "feedback": "string"
+                                },
+                                "overall": "0-100"
+                            },
+                            "strengths": [
+                                "string"
+                            ],
+                            "weaknesses": [
+                                "string"
+                            ],
+                            "suggestions": [
+                                "string"
+                            ]
+                        },
+                        "voiceAnalysis": {
+                            "confidence": "number",
+                            "clarityScore": "number",
+                            "wordsPerMinute": "number",
+                            "hesitationCount": "number",
+                            "fillerWords": [
+                                {
+                                    "word": "string",
+                                    "count": "number"
+                                }
+                            ]
+                        },
+                        "difficultyAdjusted": "boolean",
+                        "newDifficulty": "string",
+                        "isComplete": "boolean",
+                        "progress": {
+                            "answered": "number",
+                            "total": "number",
+                            "percentage": "number"
+                        },
+                        "nextQuestion": {
+                            "index": "number",
+                            "question": "string",
+                            "type": "string",
+                            "difficulty": "string",
+                            "expectedTopics": [
+                                "string"
+                            ],
+                            "isFollowUp": "boolean (optional)"
+                        },
+                        "followUpGenerated": "boolean"
+                    }
+                }
+            },
+            "GET /api/interviews/:sessionId": {
+                "description": "Get interview session status",
+                "access": "private",
+                "params": {
+                    "sessionId": {
+                        "type": "string",
+                        "required": true
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "data": {
+                        "sessionId": "string",
+                        "status": "string",
+                        "interviewType": "string",
+                        "personality": "string",
+                        "difficulty": {
+                            "initial": "string",
+                            "current": "string",
+                            "adjustmentHistory": [
+                                "DifficultyAdjustment"
+                            ]
+                        },
+                        "progress": {
+                            "answered": "number",
+                            "total": "number",
+                            "percentage": "number"
+                        },
+                        "duration": "number (seconds)",
+                        "overallScores": "OverallScores|null",
+                        "startedAt": "Date",
+                        "completedAt": "Date|null"
+                    }
+                }
+            },
+            "POST /api/interviews/:sessionId/end": {
+                "description": "End interview early",
+                "access": "private",
+                "params": {
+                    "sessionId": {
+                        "type": "string",
+                        "required": true
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "message": "Interview ended",
+                    "data": {
+                        "sessionId": "string",
+                        "questionsAnswered": "number",
+                        "overallScores": "OverallScores"
+                    }
+                }
+            },
+            "GET /api/interviews": {
+                "description": "Get interview history",
+                "access": "private",
+                "queryParams": {
+                    "page": {
+                        "type": "integer",
+                        "default": 1,
+                        "min": 1
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "default": 10,
+                        "min": 1,
+                        "max": 50
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "hr",
+                            "technical",
+                            "behavioral",
+                            "system-design"
+                        ]
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "completed",
+                            "in-progress",
+                            "abandoned"
+                        ]
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "data": {
+                        "interviews": [
+                            {
+                                "sessionId": "string",
+                                "interviewType": "string",
+                                "personality": "string",
+                                "difficulty": "string",
+                                "status": "string",
+                                "score": "number",
+                                "questionsAnswered": "number",
+                                "totalQuestions": "number",
+                                "startedAt": "Date",
+                                "completedAt": "Date",
+                                "duration": "number"
+                            }
+                        ],
+                        "pagination": {
+                            "page": "number",
+                            "limit": "number",
+                            "total": "number",
+                            "pages": "number"
+                        }
+                    }
+                }
+            },
+            "GET /api/interviews/:sessionId/report": {
+                "description": "Get full interview report with AI-generated summary",
+                "access": "private",
+                "params": {
+                    "sessionId": {
+                        "type": "string",
+                        "required": true
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "data": {
+                        "session": {
+                            "sessionId": "string",
+                            "interviewType": "string",
+                            "subCategory": "string|null",
+                            "personality": "string",
+                            "targetCompany": "string|null",
+                            "targetRole": "string|null",
+                            "status": "string",
+                            "voiceEnabled": "boolean",
+                            "startedAt": "Date",
+                            "completedAt": "Date",
+                            "duration": "number"
+                        },
+                        "difficulty": "DifficultyObject",
+                        "progress": {
+                            "questionsAnswered": "number",
+                            "totalQuestions": "number"
+                        },
+                        "overallScores": "OverallScores",
+                        "analytics": "SessionAnalytics",
+                        "responses": [
+                            {
+                                "questionIndex": "number",
+                                "question": "string",
+                                "difficulty": "string",
+                                "answer": "string (truncated to 200 chars)",
+                                "scores": "ResponseScores",
+                                "strengths": [
+                                    "string"
+                                ],
+                                "weaknesses": [
+                                    "string"
+                                ],
+                                "suggestions": [
+                                    "string"
+                                ],
+                                "voiceMetrics": {
+                                    "confidence": "number",
+                                    "clarityScore": "number",
+                                    "hesitationCount": "number"
+                                }
+                            }
+                        ],
+                        "summary": "AISummary|null"
+                    }
+                }
+            }
+        },
+        "analytics": {
+            "GET /api/analytics/dashboard": {
+                "description": "Get user dashboard analytics",
+                "access": "private",
+                "response": {
+                    "success": true,
+                    "data": {
+                        "overview": {
+                            "totalInterviews": "number",
+                            "totalQuestions": "number",
+                            "averageScore": "number",
+                            "currentStreak": "number",
+                            "lastInterviewDate": "Date|null"
+                        },
+                        "subscription": {
+                            "plan": "string",
+                            "interviewsRemaining": "number"
+                        },
+                        "recentInterviews": [
+                            {
+                                "sessionId": "string",
+                                "type": "string",
+                                "score": "number",
+                                "difficulty": "string",
+                                "date": "Date"
+                            }
+                        ],
+                        "typeDistribution": {
+                            "technical": "number",
+                            "behavioral": "number",
+                            "hr": "number",
+                            "system-design": "number"
+                        },
+                        "averagesByType": {
+                            "technical": "number",
+                            "behavioral": "number",
+                            "hr": "number",
+                            "system-design": "number"
+                        },
+                        "scoresTrend": [
+                            {
+                                "date": "Date",
+                                "score": "number",
+                                "type": "string"
+                            }
+                        ],
+                        "skillRadar": [
+                            {
+                                "skill": "string",
+                                "score": "number"
+                            }
+                        ],
+                        "performanceLevel": "string"
+                    }
+                }
+            },
+            "GET /api/analytics/performance": {
+                "description": "Get detailed performance analytics",
+                "access": "private",
+                "queryParams": {
+                    "period": {
+                        "type": "string",
+                        "enum": [
+                            "7days",
+                            "30days",
+                            "90days",
+                            "all"
+                        ],
+                        "default": "30days"
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "data": {
+                        "period": "string",
+                        "totalInterviews": "number",
+                        "averageScore": "number",
+                        "improvementRate": "number (percentage)",
+                        "dailyPerformance": [
+                            {
+                                "date": "string (YYYY-MM-DD)",
+                                "averageScore": "number",
+                                "interviewCount": "number"
+                            }
+                        ],
+                        "categoryPerformance": [
+                            {
+                                "category": "string",
+                                "averageScore": "number",
+                                "interviewCount": "number",
+                                "trend": "string (improving|stable|declining)"
+                            }
+                        ],
+                        "difficultyPerformance": [
+                            {
+                                "difficulty": "string",
+                                "averageScore": "number",
+                                "interviewCount": "number"
+                            }
+                        ],
+                        "bestPerformingCategory": "string|null",
+                        "needsImprovementCategory": "string|null"
+                    }
+                }
+            },
+            "GET /api/analytics/strengths-weaknesses": {
+                "description": "Get strengths and weaknesses analysis",
+                "access": "private",
+                "response": {
+                    "success": true,
+                    "data": {
+                        "topStrengths": [
+                            {
+                                "strength": "string",
+                                "frequency": "number"
+                            }
+                        ],
+                        "topWeaknesses": [
+                            {
+                                "weakness": "string",
+                                "frequency": "number"
+                            }
+                        ],
+                        "skillAverages": {
+                            "correctness": "number",
+                            "reasoning": "number",
+                            "communication": "number",
+                            "structure": "number",
+                            "confidence": "number"
+                        },
+                        "strongestSkill": {
+                            "skill": "string",
+                            "score": "number"
+                        },
+                        "weakestSkill": {
+                            "skill": "string",
+                            "score": "number"
+                        },
+                        "recommendations": [
+                            {
+                                "topic": "string",
+                                "priority": "string",
+                                "suggestedQuestions": [
+                                    "string"
+                                ]
+                            }
+                        ]
+                    }
+                }
+            },
+            "GET /api/analytics/recommendations": {
+                "description": "Get personalized practice recommendations",
+                "access": "private",
+                "response": {
+                    "success": true,
+                    "data": {
+                        "recommendations": [
+                            {
+                                "topic": "string",
+                                "priority": "high|medium|low",
+                                "reason": "string (optional)",
+                                "suggestedQuestions": [
+                                    "string"
+                                ]
+                            }
+                        ],
+                        "focusAreas": [
+                            "string"
+                        ],
+                        "estimatedPrepTime": "string"
+                    }
+                }
+            }
+        },
+        "dailyPractice": {
+            "GET /api/daily-practice/questions": {
+                "description": "Get today's daily practice questions",
+                "access": "private",
+                "response": {
+                    "success": true,
+                    "data": {
+                        "date": "string (YYYY-MM-DD)",
+                        "categories": {
+                            "communication": [
+                                {
+                                    "questionText": "string",
+                                    "options": [
+                                        {
+                                            "id": "A|B|C|D",
+                                            "text": "string"
+                                        }
+                                    ],
+                                    "difficulty": "easy|medium|hard",
+                                    "answered": "boolean",
+                                    "userAnswer": "string|null",
+                                    "isCorrect": "boolean|null",
+                                    "correctAnswer": "string (only if answered)",
+                                    "explanation": "string (only if answered)"
+                                }
+                            ],
+                            "aptitude": [
+                                "...same structure..."
+                            ],
+                            "generalKnowledge": [
+                                "...same structure..."
+                            ]
+                        },
+                        "progress": {
+                            "communication": {
+                                "answered": "number",
+                                "correct": "number",
+                                "responses": []
+                            },
+                            "aptitude": {
+                                "answered": "number",
+                                "correct": "number",
+                                "responses": []
+                            },
+                            "generalKnowledge": {
+                                "answered": "number",
+                                "correct": "number",
+                                "responses": []
+                            }
+                        },
+                        "isCompleted": "boolean",
+                        "completedAt": "Date|null",
+                        "totalScore": "number",
+                        "maxScore": "number",
+                        "streak": "number",
+                        "streakActive": "boolean"
+                    }
+                }
+            },
+            "POST /api/daily-practice/submit": {
+                "description": "Submit an answer for a daily question",
+                "access": "private",
+                "requestBody": {
+                    "category": {
+                        "type": "string",
+                        "required": true,
+                        "note": "communication|aptitude|generalKnowledge (+ variants)"
+                    },
+                    "questionIndex": {
+                        "type": "integer",
+                        "required": true
+                    },
+                    "selectedAnswer": {
+                        "type": "string",
+                        "required": true,
+                        "enum": [
+                            "A",
+                            "B",
+                            "C",
+                            "D"
+                        ]
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "data": {
+                        "isCorrect": "boolean",
+                        "correctAnswer": "string",
+                        "explanation": "string",
+                        "progress": {
+                            "answered": "number",
+                            "correct": "number",
+                            "responses": [
+                                "QuestionResponse"
+                            ]
+                        },
+                        "isCompleted": "boolean",
+                        "streak": "number",
+                        "totalScore": "number",
+                        "maxScore": "number",
+                        "rewardGranted": "boolean",
+                        "rewardType": "string|null"
+                    }
+                }
+            },
+            "GET /api/daily-practice/stats": {
+                "description": "Get user's daily practice statistics",
+                "access": "private",
+                "response": {
+                    "success": true,
+                    "data": {
+                        "totalDaysAttempted": "number",
+                        "totalDaysCompleted": "number",
+                        "currentStreak": "number",
+                        "longestStreak": "number",
+                        "averageScore": "number",
+                        "categoryPerformance": {
+                            "communication": {
+                                "total": "number",
+                                "correct": "number"
+                            },
+                            "aptitude": {
+                                "total": "number",
+                                "correct": "number"
+                            },
+                            "generalKnowledge": {
+                                "total": "number",
+                                "correct": "number"
+                            }
+                        },
+                        "recentHistory": [
+                            {
+                                "date": "string",
+                                "isCompleted": "boolean",
+                                "totalScore": "number",
+                                "maxScore": "number",
+                                "streak": "number"
+                            }
+                        ]
+                    }
+                }
+            },
+            "GET /api/daily-practice/streak": {
+                "description": "Get current streak information",
+                "access": "private",
+                "response": {
+                    "success": true,
+                    "data": {
+                        "currentStreak": "number",
+                        "streakActive": "boolean",
+                        "completedToday": "boolean",
+                        "todayProgress": "UserDailyProgress|null"
+                    }
+                }
+            },
+            "GET /api/daily-practice/leaderboard": {
+                "description": "Get daily practice leaderboard",
+                "access": "private",
+                "queryParams": {
+                    "limit": {
+                        "type": "integer",
+                        "default": 10
+                    }
+                },
+                "response": {
+                    "success": true,
+                    "data": [
+                        {
+                            "firstName": "string",
+                            "lastName": "string",
+                            "avatar": "string|null",
+                            "totalScore": "number",
+                            "maxScore": "number",
+                            "streak": "number",
+                            "completedAt": "Date",
+                            "percentage": "number"
+                        }
+                    ]
+                }
+            },
+            "POST /api/daily-practice/regenerate": {
+                "description": "Force regenerate today's questions (Admin only)",
+                "access": "private + admin role",
+                "response": {
+                    "success": true,
+                    "message": "Daily questions regenerated successfully",
+                    "data": {
+                        "date": "string",
+                        "categoryCounts": {
+                            "communication": "number",
+                            "aptitude": "number",
+                            "generalKnowledge": "number"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "websocket": {
+        "authentication": {
+            "method": "socket.handshake.auth.token OR Authorization header",
+            "tokenType": "JWT Bearer"
+        },
+        "clientToServer": {
+            "join-interview": {
+                "payload": {
+                    "sessionId": "string"
+                },
+                "description": "Join an interview session room"
+            },
+            "audio-stream": {
+                "payload": {
+                    "sessionId": "string",
+                    "audioChunk": "base64-string"
+                },
+                "description": "Stream audio data chunk"
+            },
+            "audio-complete": {
+                "payload": {
+                    "sessionId": "string"
+                },
+                "description": "Signal audio recording is complete"
+            },
+            "submit-answer": {
+                "payload": {
+                    "sessionId": "string",
+                    "answer": "string"
+                },
+                "description": "Submit answer for evaluation"
+            },
+            "pause-interview": {
+                "payload": {
+                    "sessionId": "string"
+                },
+                "description": "Pause the interview"
+            },
+            "resume-interview": {
+                "payload": {
+                    "sessionId": "string"
+                },
+                "description": "Resume a paused interview"
+            },
+            "leave-interview": {
+                "payload": {
+                    "sessionId": "string"
+                },
+                "description": "Leave the interview room"
+            }
+        },
+        "serverToClient": {
+            "interview-joined": {
+                "payload": {
+                    "sessionId": "string",
+                    "status": "string",
+                    "interviewType": "string",
+                    "difficulty": "string",
+                    "voiceEnabled": "boolean",
+                    "currentQuestion": "QuestionObject",
+                    "progress": {
+                        "current": "number",
+                        "total": "number"
+                    }
+                }
+            },
+            "interview-already-complete": {
+                "payload": {
+                    "sessionId": "string",
+                    "status": "completed",
+                    "overallScores": "OverallScores",
+                    "completedAt": "Date",
+                    "analytics": "SessionAnalytics"
+                }
+            },
+            "audio-received": {
+                "payload": {
+                    "chunksReceived": "number"
+                }
+            },
+            "transcription-complete": {
+                "payload": {
+                    "transcription": "string",
+                    "confidence": "number",
+                    "clarityScore": "number",
+                    "hesitationCount": "number",
+                    "fillerWords": [
+                        "FillerWord"
+                    ],
+                    "wordsPerMinute": "number"
+                }
+            },
+            "transcription-error": {
+                "payload": {
+                    "message": "string"
+                }
+            },
+            "answer-processing": {
+                "payload": {
+                    "status": "evaluating|generating-question"
+                }
+            },
+            "answer-evaluated": {
+                "payload": {
+                    "scores": "ResponseScores",
+                    "skipped": "boolean",
+                    "feedback": {
+                        "strengths": [
+                            "string"
+                        ],
+                        "weaknesses": [
+                            "string"
+                        ],
+                        "suggestions": [
+                            "string"
+                        ]
+                    }
+                }
+            },
+            "difficulty-adjusted": {
+                "payload": {
+                    "newDifficulty": "string",
+                    "reason": "string"
+                }
+            },
+            "next-question": {
+                "payload": {
+                    "index": "number",
+                    "question": "string",
+                    "type": "string",
+                    "difficulty": "string",
+                    "expectedTopics": [
+                        "string"
+                    ],
+                    "progress": {
+                        "current": "number",
+                        "total": "number"
+                    }
+                }
+            },
+            "interview-complete": {
+                "payload": {
+                    "sessionId": "string",
+                    "overallScores": "OverallScores",
+                    "analytics": "SessionAnalytics"
+                }
+            },
+            "interview-paused": {
+                "payload": {
+                    "sessionId": "string"
+                }
+            },
+            "interview-resumed": {
+                "payload": {
+                    "sessionId": "string",
+                    "currentQuestion": "QuestionObject",
+                    "progress": {
+                        "current": "number",
+                        "total": "number"
+                    }
+                }
+            },
+            "error": {
+                "payload": {
+                    "message": "string",
+                    "type": "string (optional, e.g. rate_limit)",
+                    "retryAfter": "number (optional, seconds)"
+                }
+            }
+        }
+    },
+    "models": {
+        "User": {
+            "collection": "users",
+            "fields": {
+                "email": {
+                    "type": "String",
+                    "required": true,
+                    "unique": true,
+                    "lowercase": true
+                },
+                "password": {
+                    "type": "String",
+                    "required": true,
+                    "minlength": 8,
+                    "select": false
+                },
+                "firstName": {
+                    "type": "String",
+                    "required": true,
+                    "maxlength": 50
+                },
+                "lastName": {
+                    "type": "String",
+                    "required": true,
+                    "maxlength": 50
+                },
+                "avatar": {
+                    "type": "String",
+                    "default": null
+                },
+                "role": {
+                    "type": "String",
+                    "enum": [
+                        "user",
+                        "premium",
+                        "admin"
+                    ],
+                    "default": "user"
+                },
+                "profile": {
+                    "title": {
+                        "type": "String",
+                        "default": ""
+                    },
+                    "company": {
+                        "type": "String",
+                        "default": ""
+                    },
+                    "experience": {
+                        "type": "Number",
+                        "default": 0
+                    },
+                    "targetRole": {
+                        "type": "String",
+                        "default": ""
+                    },
+                    "targetCompany": {
+                        "type": "String",
+                        "default": ""
+                    },
+                    "skills": [
+                        "String"
+                    ],
+                    "preferredInterviewTypes": {
+                        "type": [
+                            "String"
+                        ],
+                        "enum": [
+                            "hr",
+                            "technical",
+                            "behavioral",
+                            "system-design"
+                        ]
+                    }
+                },
+                "preferences": {
+                    "interviewerPersonality": {
+                        "type": "String",
+                        "enum": [
+                            "strict",
+                            "friendly",
+                            "professional"
+                        ],
+                        "default": "professional"
+                    },
+                    "difficultyLevel": {
+                        "type": "String",
+                        "enum": [
+                            "easy",
+                            "medium",
+                            "hard",
+                            "expert"
+                        ],
+                        "default": "medium"
+                    },
+                    "voiceEnabled": {
+                        "type": "Boolean",
+                        "default": true
+                    },
+                    "emailNotifications": {
+                        "type": "Boolean",
+                        "default": true
+                    },
+                    "timezone": {
+                        "type": "String",
+                        "default": "UTC"
+                    }
+                },
+                "statistics": {
+                    "totalInterviews": {
+                        "type": "Number",
+                        "default": 0
+                    },
+                    "totalQuestions": {
+                        "type": "Number",
+                        "default": 0
+                    },
+                    "averageScore": {
+                        "type": "Number",
+                        "default": 0
+                    },
+                    "streakDays": {
+                        "type": "Number",
+                        "default": 0
+                    },
+                    "lastInterviewDate": {
+                        "type": "Date",
+                        "default": null
+                    },
+                    "bestCategory": {
+                        "type": "String",
+                        "default": null
+                    },
+                    "weakestCategory": {
+                        "type": "String",
+                        "default": null
+                    }
+                },
+                "subscription": {
+                    "plan": {
+                        "type": "String",
+                        "enum": [
+                            "free",
+                            "basic",
+                            "premium",
+                            "enterprise"
+                        ],
+                        "default": "free"
+                    },
+                    "startDate": {
+                        "type": "Date",
+                        "default": null
+                    },
+                    "endDate": {
+                        "type": "Date",
+                        "default": null
+                    },
+                    "interviewsRemaining": {
+                        "type": "Number",
+                        "default": 5
+                    },
+                    "features": {
+                        "type": [
+                            "String"
+                        ],
+                        "enum": [
+                            "voice-analysis",
+                            "detailed-analytics",
+                            "custom-questions",
+                            "priority-support"
+                        ]
+                    }
+                },
+                "refreshToken": {
+                    "type": "String",
+                    "select": false
+                },
+                "emailVerified": {
+                    "type": "Boolean",
+                    "default": false
+                },
+                "lastLogin": {
+                    "type": "Date"
+                },
+                "isActive": {
+                    "type": "Boolean",
+                    "default": true
+                }
+            },
+            "virtuals": [
+                "fullName"
+            ],
+            "indexes": [
+                "email",
+                "profile.skills",
+                "createdAt"
+            ],
+            "methods": [
+                "comparePassword",
+                "updateStatistics"
+            ],
+            "statics": [
+                "findByEmail"
+            ]
+        },
+        "InterviewSession": {
+            "collection": "interviewsessions",
+            "fields": {
+                "user": {
+                    "type": "ObjectId",
+                    "ref": "User",
+                    "required": true
+                },
+                "sessionId": {
+                    "type": "String",
+                    "required": true,
+                    "unique": true
+                },
+                "interviewType": {
+                    "type": "String",
+                    "enum": [
+                        "hr",
+                        "technical",
+                        "behavioral",
+                        "system-design"
+                    ],
+                    "required": true
+                },
+                "subCategory": {
+                    "type": "String",
+                    "default": null
+                },
+                "personality": {
+                    "type": "String",
+                    "enum": [
+                        "strict",
+                        "friendly",
+                        "professional"
+                    ],
+                    "default": "professional"
+                },
+                "targetCompany": {
+                    "type": "String",
+                    "default": null
+                },
+                "targetRole": {
+                    "type": "String",
+                    "default": null
+                },
+                "difficulty": {
+                    "initial": {
+                        "type": "String",
+                        "enum": [
+                            "easy",
+                            "medium",
+                            "hard",
+                            "expert"
+                        ]
+                    },
+                    "current": {
+                        "type": "String",
+                        "enum": [
+                            "easy",
+                            "medium",
+                            "hard",
+                            "expert"
+                        ]
+                    },
+                    "adjustmentHistory": [
+                        {
+                            "fromLevel": "String",
+                            "toLevel": "String",
+                            "reason": "String",
+                            "questionIndex": "Number",
+                            "timestamp": "Date"
+                        }
+                    ]
+                },
+                "status": {
+                    "type": "String",
+                    "enum": [
+                        "scheduled",
+                        "in-progress",
+                        "paused",
+                        "completed",
+                        "abandoned"
+                    ],
+                    "default": "scheduled"
+                },
+                "voiceEnabled": {
+                    "type": "Boolean",
+                    "default": false
+                },
+                "responses": [
+                    "ResponseSchema (embedded)"
+                ],
+                "totalQuestions": {
+                    "type": "Number",
+                    "default": 0
+                },
+                "questionsAnswered": {
+                    "type": "Number",
+                    "default": 0
+                },
+                "currentQuestionIndex": {
+                    "type": "Number",
+                    "default": 0
+                },
+                "overallScores": {
+                    "correctness": "Number",
+                    "reasoning": "Number",
+                    "communication": "Number",
+                    "structure": "Number",
+                    "confidence": "Number",
+                    "overall": "Number"
+                },
+                "analytics": "SessionAnalytics (embedded)"
+            },
+            "virtuals": [
+                "duration",
+                "completionPercentage"
+            ],
+            "indexes": [
+                "user+createdAt",
+                "status",
+                "interviewType",
+                "overallScores.overall"
+            ],
+            "methods": [
+                "calculateOverallScores",
+                "adjustDifficulty"
+            ]
+        },
+        "QuestionBank": {
+            "collection": "questionbanks",
+            "fields": {
+                "category": {
+                    "type": "String",
+                    "enum": [
+                        "hr",
+                        "technical",
+                        "behavioral",
+                        "system-design"
+                    ],
+                    "required": true
+                },
+                "subCategory": {
+                    "type": "String",
+                    "required": true
+                },
+                "question": {
+                    "type": "String",
+                    "required": true
+                },
+                "difficulty": {
+                    "type": "String",
+                    "enum": [
+                        "easy",
+                        "medium",
+                        "hard",
+                        "expert"
+                    ],
+                    "required": true
+                },
+                "type": {
+                    "type": "String",
+                    "enum": [
+                        "open-ended",
+                        "technical",
+                        "coding",
+                        "scenario",
+                        "design"
+                    ],
+                    "required": true
+                },
+                "expectedAnswer": {
+                    "summary": "String",
+                    "keyPoints": [
+                        "String"
+                    ],
+                    "codeExample": "String|null",
+                    "timeComplexity": "String|null",
+                    "spaceComplexity": "String|null"
+                },
+                "scoringGuidelines": {
+                    "correctnessIndicators": [
+                        "String"
+                    ],
+                    "reasoningIndicators": [
+                        "String"
+                    ],
+                    "communicationTips": [
+                        "String"
+                    ],
+                    "commonMistakes": [
+                        "String"
+                    ]
+                },
+                "followUpQuestions": [
+                    {
+                        "condition": "String",
+                        "question": "String",
+                        "difficulty": "String"
+                    }
+                ],
+                "tags": [
+                    "String"
+                ],
+                "companies": [
+                    "String"
+                ],
+                "roles": [
+                    "String"
+                ],
+                "experienceLevel": {
+                    "min": "Number",
+                    "max": "Number"
+                },
+                "metadata": {
+                    "usageCount": "Number",
+                    "averageScore": "Number",
+                    "successRate": "Number"
+                },
+                "isActive": {
+                    "type": "Boolean",
+                    "default": true
+                }
+            },
+            "indexes": [
+                "category+difficulty",
+                "category+subCategory+difficulty",
+                "tags",
+                "companies"
+            ],
+            "statics": [
+                "getRandomQuestions",
+                "getProgressiveQuestions"
+            ]
+        },
+        "DailyQuestion": {
+            "collection": "dailyquestions",
+            "fields": {
+                "date": {
+                    "type": "String",
+                    "format": "YYYY-MM-DD",
+                    "required": true,
+                    "unique": true
+                },
+                "categories": {
+                    "communication": [
+                        "MCQQuestion"
+                    ],
+                    "aptitude": [
+                        "MCQQuestion"
+                    ],
+                    "generalKnowledge": [
+                        "MCQQuestion"
+                    ]
+                },
+                "generatedAt": {
+                    "type": "Date"
+                },
+                "isActive": {
+                    "type": "Boolean",
+                    "default": true
+                }
+            },
+            "MCQQuestion": {
+                "questionText": "String",
+                "options": [
+                    {
+                        "id": "A|B|C|D",
+                        "text": "String"
+                    }
+                ],
+                "correctAnswer": "String (A|B|C|D)",
+                "explanation": "String",
+                "difficulty": "easy|medium|hard"
+            },
+            "indexes": [
+                "date+isActive"
+            ],
+            "statics": [
+                "getTodaysQuestions",
+                "questionsExistForToday"
+            ]
+        },
+        "UserDailyProgress": {
+            "collection": "userdailyprogresses",
+            "fields": {
+                "userId": {
+                    "type": "ObjectId",
+                    "ref": "User",
+                    "required": true
+                },
+                "date": {
+                    "type": "String",
+                    "format": "YYYY-MM-DD",
+                    "required": true
+                },
+                "progress": {
+                    "communication": {
+                        "answered": "Number",
+                        "correct": "Number",
+                        "responses": [
+                            "Response"
+                        ]
+                    },
+                    "aptitude": {
+                        "answered": "Number",
+                        "correct": "Number",
+                        "responses": [
+                            "Response"
+                        ]
+                    },
+                    "generalKnowledge": {
+                        "answered": "Number",
+                        "correct": "Number",
+                        "responses": [
+                            "Response"
+                        ]
+                    }
+                },
+                "isCompleted": {
+                    "type": "Boolean",
+                    "default": false
+                },
+                "completedAt": {
+                    "type": "Date",
+                    "default": null
+                },
+                "totalScore": {
+                    "type": "Number",
+                    "default": 0
+                },
+                "maxScore": {
+                    "type": "Number",
+                    "default": 0
+                },
+                "streak": {
+                    "type": "Number",
+                    "default": 0
+                },
+                "streakUpdated": {
+                    "type": "Boolean",
+                    "default": false
+                }
+            },
+            "indexes": [
+                "userId+date (unique)"
+            ],
+            "statics": [
+                "getOrCreateTodaysProgress",
+                "getStreakInfo"
+            ],
+            "methods": [
+                "answerQuestion",
+                "checkCompletion"
+            ],
+            "rewardMechanic": "Every 10-day streak milestone grants +1 interview credit"
+        }
+    },
+    "services": {
+        "geminiAI": {
+            "model": "gemini-2.5-flash",
+            "provider": "Google GenAI (@google/genai)",
+            "features": [
+                "Multi-API-key rotation for rate limit handling",
+                "Chat session management (per interview, maintains conversation context)",
+                "Dynamic question generation based on interview type, difficulty, personality",
+                "Answer evaluation with structured JSON scoring",
+                "Follow-up question generation based on answer quality",
+                "Comprehensive interview summary and improvement plan generation",
+                "Exponential backoff retry on single key",
+                "Automatic key switching on quota exhaustion"
+            ],
+            "interviewerPersonalities": {
+                "strict": "FAANG-style rigorous questioning",
+                "friendly": "Supportive and encouraging",
+                "professional": "Balanced corporate style"
+            },
+            "interviewTypes": {
+                "technical": "Data structures, algorithms, system fundamentals, code optimization",
+                "behavioral": "STAR method, leadership, conflict resolution, adaptability",
+                "hr": "Career goals, company fit, work style, cultural alignment",
+                "system-design": "Architecture, scalability, trade-offs, distributed systems"
+            }
+        },
+        "speechToText": {
+            "provider": "Google Cloud Speech-to-Text (@google-cloud/speech)",
+            "features": [
+                "Real-time audio transcription with word-level timestamps",
+                "Filler word detection (18+ words: um, uh, er, ah, like, you know, basically, etc.)",
+                "Hesitation and pause duration analysis",
+                "Words per minute calculation",
+                "Clarity score computation (0-100)",
+                "Speech pattern analysis (rate, consistency, energy)",
+                "Streaming transcription support",
+                "Mock analysis fallback for development without credentials"
+            ],
+            "config": {
+                "encoding": "LINEAR16",
+                "sampleRateHertz": 16000,
+                "languageCode": "en-US",
+                "enableWordTimeOffsets": true,
+                "enableWordConfidence": true
+            }
+        },
+        "analytics": {
+            "scoringWeights": {
+                "correctness": 0.30,
+                "reasoning": 0.25,
+                "communication": 0.20,
+                "confidence": 0.15,
+                "structure": 0.10
+            },
+            "performanceThresholds": {
+                "excellent": 85,
+                "good": 70,
+                "average": 55,
+                "needsImprovement": 40
+            },
+            "features": [
+                "Weighted overall score calculation",
+                "Communication score blending (AI evaluation + voice clarity)",
+                "Confidence score calculation from voice analysis",
+                "Dynamic difficulty adjustment (rolling 3-question average)",
+                "Session analytics calculation",
+                "Performance trend detection (improving/stable/declining)",
+                "Strengths and weaknesses identification",
+                "Practice recommendations generation"
+            ],
+            "difficultyAdjustmentRules": {
+                "increase": "Average score >= 85 and not already at expert",
+                "decrease": "Average score < 50 and not already at easy"
+            }
+        },
+        "dailyScheduler": {
+            "checkInterval": "60 seconds (1 minute)",
+            "features": [
+                "Automatic daily question generation at midnight (date change detection)",
+                "Generates 5 MCQ questions per category (communication, aptitude, general knowledge)",
+                "Retry on failure (5-minute delay)",
+                "Archives previous day's questions"
+            ],
+            "questionsPerCategory": 5,
+            "difficultyDistribution": "2 easy, 2 medium, 1 hard"
+        }
+    },
+    "middleware": {
+        "authentication": {
+            "authenticate": "Validates JWT Bearer token, attaches user to request",
+            "optionalAuth": "Attaches user if token present, continues if not",
+            "authorize": "Role-based access control (user, premium, admin)",
+            "checkSubscription": "Verifies subscription is active and limits not exceeded"
+        },
+        "errorHandling": {
+            "ApiError": "Custom error class with statusCode, message, code, details",
+            "asyncHandler": "Wraps async route handlers to catch errors",
+            "notFound": "404 handler for unmatched routes",
+            "errorHandler": "Global error handler with mongoose/JWT error normalization"
+        },
+        "security": {
+            "helmet": "Security headers (cross-origin resource policy, CSP disabled for dev)",
+            "cors": "Configurable origin, credentials, methods, headers",
+            "rateLimit": "100 requests per 15-minute window on /api routes",
+            "bodyParser": "JSON and URL-encoded with 50MB limit"
+        },
+        "logging": {
+            "morgan": "HTTP request logging (dev mode in development, combined in production)",
+            "winston": "Structured logging with file and console transports"
+        }
+    },
+    "errorCodes": {
+        "VALIDATION_ERROR": {
+            "status": 400,
+            "description": "Input validation failed"
+        },
+        "INVALID_ID": {
+            "status": 400,
+            "description": "Invalid MongoDB ObjectId format"
+        },
+        "INVALID_CREDENTIALS": {
+            "status": 401,
+            "description": "Wrong email or password"
+        },
+        "TOKEN_EXPIRED": {
+            "status": 401,
+            "description": "JWT token has expired"
+        },
+        "INVALID_TOKEN": {
+            "status": 401,
+            "description": "Invalid JWT token"
+        },
+        "NO_REFRESH_TOKEN": {
+            "status": 401,
+            "description": "Refresh token not provided"
+        },
+        "INVALID_REFRESH_TOKEN": {
+            "status": 401,
+            "description": "Invalid or expired refresh token"
+        },
+        "ACCOUNT_INACTIVE": {
+            "status": 401,
+            "description": "Account has been deactivated"
+        },
+        "INVALID_PASSWORD": {
+            "status": 401,
+            "description": "Current password is incorrect"
+        },
+        "LIMIT_REACHED": {
+            "status": 403,
+            "description": "Free tier interview limit exceeded"
+        },
+        "SUBSCRIPTION_EXPIRED": {
+            "status": 403,
+            "description": "Paid subscription has expired"
+        },
+        "USER_EXISTS": {
+            "status": 409,
+            "description": "Email already registered"
+        },
+        "DUPLICATE_ERROR": {
+            "status": 409,
+            "description": "Duplicate database entry"
+        },
+        "RATE_LIMIT_EXCEEDED": {
+            "status": 429,
+            "description": "Too many API requests"
+        },
+        "INTERNAL_ERROR": {
+            "status": 500,
+            "description": "Unexpected server error"
+        }
+    },
+    "configuration": {
+        "server": {
+            "NODE_ENV": "development|production",
+            "PORT": 5000,
+            "CLIENT_URL": "http://localhost:3000"
+        },
+        "database": {
+            "MONGODB_URI": "mongodb+srv://...",
+            "maxPoolSize": 10,
+            "serverSelectionTimeoutMS": 5000,
+            "socketTimeoutMS": 45000
+        },
+        "jwt": {
+            "JWT_SECRET": "required",
+            "JWT_EXPIRES_IN": "7d",
+            "JWT_REFRESH_SECRET": "required",
+            "JWT_REFRESH_EXPIRES_IN": "30d"
+        },
+        "google": {
+            "GEMINI_API_KEY": "required",
+            "GEMINI_API_KEYS": "optional (comma-separated for multi-key rotation)",
+            "GOOGLE_CLOUD_PROJECT_ID": "optional",
+            "GOOGLE_APPLICATION_CREDENTIALS": "optional (path to credentials JSON)",
+            "GOOGLE_SPEECH_API_KEY": "optional"
+        },
+        "rateLimit": {
+            "RATE_LIMIT_WINDOW_MS": 900000,
+            "RATE_LIMIT_MAX_REQUESTS": 100
+        },
+        "upload": {
+            "MAX_FILE_SIZE": 52428800,
+            "UPLOAD_PATH": "./uploads"
+        },
+        "session": {
+            "SESSION_SECRET": "required",
+            "SESSION_MAX_AGE": 86400000
+        },
+        "logging": {
+            "LOG_LEVEL": "debug|info|warn|error"
+        }
+    },
+    "techStack": {
+        "runtime": "Node.js >= 18.0.0",
+        "framework": "Express.js 4.18",
+        "database": "MongoDB Atlas (Mongoose 8)",
+        "realtime": "Socket.IO 4.6",
+        "ai": "Google Gemini 2.5 Flash (@google/genai)",
+        "speech": "Google Cloud Speech-to-Text v6",
+        "auth": "JWT (jsonwebtoken 9)",
+        "security": [
+            "helmet",
+            "cors",
+            "express-rate-limit",
+            "bcryptjs"
+        ],
+        "validation": "express-validator 7",
+        "logging": "winston 3 + morgan",
+        "fileUpload": "multer",
+        "containerization": "Docker + docker-compose"
+    }
+}

@@ -1,0 +1,737 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==============================================
+   BASE STYLES - Light Theme, Mobile First
+   ============================================== */
+@layer base {
+  * {
+    @apply border-surface-300;
+    /* Prevent horizontal overflow on all elements */
+    box-sizing: border-box;
+  }
+
+  /* Root font-size: 16px base with responsive scaling */
+  html {
+    @apply scroll-smooth;
+    font-size: 16px;
+    /* Base font-size for rem calculations */
+    /* Prevent horizontal scrolling on mobile */
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply bg-surface-50 text-surface-600 font-sans antialiased;
+    background-image:
+      radial-gradient(ellipse at top, rgba(14, 165, 233, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.04) 0%, transparent 50%);
+    background-attachment: fixed;
+    /* Improved line-height for mobile readability */
+    line-height: 1.6;
+    /* Prevent horizontal scroll */
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    /* Hide scrollbar */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Responsive typography using rem units */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display font-semibold text-surface-800;
+    line-height: 1.2;
+    /* Tighter line-height for headings */
+  }
+
+  /* Mobile-first heading sizes - Smaller and more responsive */
+  h1 {
+    @apply text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl;
+  }
+
+  h2 {
+    @apply text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl;
+  }
+
+  h3 {
+    @apply text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl;
+  }
+
+  h4 {
+    @apply text-sm sm:text-base md:text-lg lg:text-xl;
+  }
+
+  h5 {
+    @apply text-xs sm:text-sm md:text-base lg:text-lg;
+  }
+
+  h6 {
+    @apply text-xs sm:text-sm md:text-base;
+  }
+
+  /* Improved paragraph spacing for mobile */
+  p {
+    @apply leading-relaxed;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* ==============================================
+   COMPONENT STYLES - Touch-friendly & Responsive
+   ============================================== */
+@layer components {
+
+  /* Glass morphism card - light theme version */
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-xl border border-surface-300/60 rounded-2xl;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    /* Prevent content overflow on mobile */
+    overflow: hidden;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300;
+    /* Touch-friendly: larger tap target on mobile via active state */
+  }
+
+  /* Only apply hover effects on devices that support hover */
+  @media (hover: hover) {
+    .glass-card-hover:hover {
+      @apply border-primary-500/40;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  /* Active state for touch devices */
+  .glass-card-hover:active {
+    @apply border-primary-500/40;
+  }
+
+  /* Gradient backgrounds */
+  .gradient-bg {
+    @apply bg-gradient-to-br from-primary-600 via-primary-500 to-secondary-600;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary-600 via-primary-500 to-secondary-600 bg-clip-text text-transparent;
+  }
+
+  .gradient-border {
+    @apply relative;
+  }
+
+  .gradient-border::before {
+    content: '';
+    @apply absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 -z-10;
+    padding: 1px;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+  }
+
+  /* ==============================================
+     BUTTONS - 44px minimum touch target
+     ============================================== */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed;
+    /* Touch accessibility: minimum 44px height */
+    min-height: 2.75rem;
+    /* 44px */
+    padding: 0.75rem 1.25rem;
+    /* Responsive padding */
+    font-size: 0.875rem;
+    /* 14px base */
+    /* Prevent text selection on tap */
+    -webkit-user-select: none;
+    user-select: none;
+    /* Prevent text wrapping in buttons */
+    white-space: nowrap;
+  }
+
+  /* Larger buttons on larger screens */
+  @screen sm {
+    .btn {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  .btn-primary {
+    @apply btn bg-gradient-to-r from-primary-600 to-primary-500 text-white active:scale-95;
+  }
+
+  /* Hover effects only on hover-capable devices */
+  @media (hover: hover) {
+    .btn-primary:hover {
+      @apply from-primary-500 to-primary-400 shadow-glow;
+    }
+  }
+
+  .btn-secondary {
+    @apply btn bg-surface-200 text-surface-600 border border-surface-300 active:scale-95;
+  }
+
+  @media (hover: hover) {
+    .btn-secondary:hover {
+      @apply bg-surface-300 border-primary-500/30;
+    }
+  }
+
+  .btn-ghost {
+    @apply btn text-surface-500;
+  }
+
+  @media (hover: hover) {
+    .btn-ghost:hover {
+      @apply text-surface-800 bg-surface-200/50;
+    }
+  }
+
+  .btn-danger {
+    @apply btn bg-error-600 text-white active:scale-95;
+  }
+
+  @media (hover: hover) {
+    .btn-danger:hover {
+      @apply bg-error-500;
+    }
+  }
+
+  /* ==============================================
+     FORM INPUTS - Touch accessible (44px min height)
+     ============================================== */
+  .input {
+    @apply w-full bg-white border border-surface-300 rounded-xl text-surface-800 placeholder-surface-400 focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200;
+    /* Touch accessibility: minimum 44px height */
+    min-height: 2.75rem;
+    /* 44px */
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    /* 16px - prevents zoom on iOS */
+  }
+
+  .input-error {
+    @apply input border-error-500 focus:border-error-500 focus:ring-error-500/20;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-surface-500 mb-2;
+  }
+
+  /* Cards */
+  .card {
+    @apply glass-card p-6;
+  }
+
+  .card-interactive {
+    @apply glass-card-hover p-6 cursor-pointer;
+  }
+
+  /* Score badges */
+  .score-excellent {
+    @apply text-success-500 bg-success-500/10 border-success-500/30;
+  }
+
+  .score-good {
+    @apply text-primary-500 bg-primary-500/10 border-primary-500/30;
+  }
+
+  .score-average {
+    @apply text-warning-500 bg-warning-500/10 border-warning-500/30;
+  }
+
+  .score-poor {
+    @apply text-error-500 bg-error-500/10 border-error-500/30;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply bg-surface-300 animate-pulse rounded;
+  }
+
+  /* Shimmer animation for skeletons */
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(90deg,
+        rgba(226, 232, 240, 0.6) 0%,
+        rgba(241, 245, 249, 0.8) 50%,
+        rgba(226, 232, 240, 0.6) 100%);
+    background-size: 200% 100%;
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-surface-200 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-surface-300 rounded-full hover:bg-surface-400;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    @apply absolute z-50 px-3 py-2 text-sm bg-surface-800 text-white rounded-lg shadow-lg pointer-events-none opacity-0 transition-opacity duration-200;
+  }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-primary-500/15 text-primary-700 border border-primary-500/30;
+  }
+
+  .badge-secondary {
+    @apply badge bg-secondary-500/15 text-secondary-700 border border-secondary-500/30;
+  }
+
+  .badge-success {
+    @apply badge bg-success-500/15 text-success-600 border border-success-500/30;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning-500/15 text-warning-600 border border-warning-500/30;
+  }
+
+  .badge-error {
+    @apply badge bg-error-500/15 text-error-600 border border-error-500/30;
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+
+  /* Text selection */
+  ::selection {
+    @apply bg-primary-500/20 text-surface-800;
+  }
+
+  /* Focus visible */
+  .focus-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white;
+  }
+
+  /* Hide scrollbar */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mesh gradient background - light version */
+  .mesh-bg {
+    background-color: #f8fafc;
+    background-image:
+      radial-gradient(at 47% 33%, hsl(201.09, 100%, 92%) 0, transparent 59%),
+      radial-gradient(at 82% 65%, hsl(271.27, 79%, 92%) 0, transparent 55%);
+  }
+
+  /* Glow effect */
+  .glow-effect {
+    @apply relative;
+  }
+
+  .glow-effect::after {
+    content: '';
+    @apply absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300;
+    background: linear-gradient(180deg, rgba(14, 165, 233, 0.06) 0%, transparent 100%);
+  }
+
+  .glow-effect:hover::after {
+    @apply opacity-100;
+  }
+
+  /* Animated gradient border */
+  .animated-border {
+    background: linear-gradient(90deg, #0ea5e9, #a855f7, #0ea5e9);
+    background-size: 200% 100%;
+    animation: gradient 3s linear infinite;
+  }
+
+  /* Typing cursor animation */
+  .typing-cursor::after {
+    content: '|';
+    @apply animate-pulse ml-0.5;
+  }
+
+  /* Fade in from bottom animation */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Step animation with stagger effect */
+  .step-animate {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .step-animate-1,
+  .step-animate-2,
+  .step-animate-3,
+  .step-animate-4 {
+    /* No delay - animates immediately when visible */
+  }
+}
+
+/* Light mode */
+html {
+  color-scheme: light;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Focus outline for accessibility */
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-primary-500;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==============================================
+   RESPONSIVE UTILITIES - Mobile First
+   ============================================== */
+
+/* Responsive images and videos */
+img,
+video,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Maintain aspect ratio for embedded content */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+/* Safe area padding for notched devices (iPhone X+) */
+.safe-area-padding {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Safe area bottom padding utility */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Touch-friendly tap targets (minimum 44px) */
+.touch-target {
+  min-width: 2.75rem;
+  /* 44px */
+  min-height: 2.75rem;
+  /* 44px */
+}
+
+/* Responsive container with proper mobile padding */
+.responsive-container {
+  width: 100%;
+  max-width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Prevent text overflow on mobile */
+.text-ellipsis-mobile {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Responsive flex utilities for mobile stacking */
+.flex-col-mobile {
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-col-mobile {
+    flex-direction: row;
+  }
+}
+
+/* Hide on mobile, show on desktop */
+.hide-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hide-mobile {
+    display: block;
+  }
+}
+
+/* Show on mobile, hide on desktop */
+.show-mobile {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .show-mobile {
+    display: none;
+  }
+}
+
+/* Improved spacing for mobile readability */
+.mobile-spacing {
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .mobile-spacing {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-spacing {
+    padding: 2rem;
+  }
+}
+
+/* ==============================================
+   REWARD CELEBRATION ANIMATIONS
+   ============================================== */
+
+/* Bounce in animation for modal */
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  70% {
+    transform: scale(0.9);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.5s ease-out forwards;
+}
+
+/* Confetti animations */
+@keyframes confetti-fall-1 {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(300px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes confetti-fall-2 {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(350px) rotate(-540deg);
+    opacity: 0;
+  }
+}
+
+@keyframes confetti-fall-3 {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(280px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti-1 {
+  animation: confetti-fall-1 2s ease-in infinite;
+}
+
+.animate-confetti-2 {
+  animation: confetti-fall-2 2.5s ease-in infinite;
+  animation-delay: 0.2s;
+}
+
+.animate-confetti-3 {
+  animation: confetti-fall-3 2.2s ease-in infinite;
+  animation-delay: 0.4s;
+}
+
+/* ========================================
+   Swiper Carousel Customization
+   ======================================== */
+
+/* Testimonials Swiper */
+.testimonials-swiper {
+  padding: 20px 0 !important;
+  overflow: visible !important;
+}
+
+.testimonials-swiper .swiper-wrapper {
+  padding-bottom: 40px;
+}
+
+/* Pagination bullets with gradient */
+.testimonials-swiper .swiper-pagination-bullet {
+  background: linear-gradient(to right, #0ea5e9, #a855f7);
+  opacity: 0.4;
+  width: 10px;
+  height: 10px;
+  transition: all 0.3s ease;
+}
+
+.testimonials-swiper .swiper-pagination-bullet-active {
+  opacity: 1;
+  transform: scale(1.3);
+  box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+}
+
+/* Responsive slide widths */
+.testimonials-swiper .swiper-slide {
+  width: 90% !important;
+  max-width: 400px;
+  height: auto !important;
+}
+
+@media (min-width: 640px) {
+  .testimonials-swiper .swiper-slide {
+    width: 45% !important;
+    max-width: 450px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .testimonials-swiper .swiper-slide {
+    width: 33% !important;
+    max-width: 380px;
+  }
+}
+
+/* Swiper slide transition effects */
+.testimonials-swiper .swiper-slide {
+  transition: transform 0.3s ease;
+}
+
+.testimonials-swiper .swiper-slide-active {
+  z-index: 2;
+}
+
+/* Coverflow effect customization */
+.swiper-3d .swiper-slide-shadow-left,
+.swiper-3d .swiper-slide-shadow-right {
+  background-image: linear-gradient(to left,
+      rgba(14, 165, 233, 0.05),
+      rgba(168, 85, 247, 0.05));
+}
+
+/* ========================================
+   Skipper UI Style Animations
+   ======================================== */
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes marquee2 {
+  0% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee2 {
+  animation: marquee2 25s linear infinite;
+}

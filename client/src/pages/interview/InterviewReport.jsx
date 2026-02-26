@@ -1,0 +1,434 @@
+import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+import { useRef, useState } from 'react';
+import { interviewService } from '../../services/interviewService';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import toast from 'react-hot-toast';
+import {
+    ArrowLeft,
+    Download,
+    Share2,
+    Target,
+    Brain,
+    MessageSquare,
+    Layers,
+    TrendingUp,
+    Clock,
+    Award,
+    CheckCircle,
+    AlertCircle,
+    Lightbulb,
+    BookOpen,
+    ArrowRight,
+    BarChart3,
+    Eye
+} from 'lucide-react';
+
+export default function InterviewReport() {
+    const { sessionId } = useParams();
+    const reportRef = useRef(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const { data, isLoading, error } = useQuery({
+        queryKey: ['interview-report', sessionId],
+        queryFn: () => interviewService.getReport(sessionId)
+    });
+
+    const report = data?.data;
+
+    // PDF Download function
+    const handleDownloadPDF = async () => {
+        if (!reportRef.current) return;
+
+        setIsDownloading(true);
+        toast.loading('Generating PDF...', { id: 'pdf-download' });
+
+        try {
+            const element = reportRef.current;
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff'
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const imgWidth = 210; // A4 width in mm
+            const pageHeight = 297; // A4 height in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            // Add more pages if content is longer
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save(`interview-report-${sessionId}.pdf`);
+            toast.success('PDF downloaded successfully!', { id: 'pdf-download' });
+        } catch (error) {
+            console.error('PDF generation failed:', error);
+            toast.error('Failed to generate PDF', { id: 'pdf-download' });
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+    const getScoreColor = (score) => {
+        if (score >= 85) return 'text-success-400';
+        if (score >= 70) return 'text-primary-400';
+        if (score >= 55) return 'text-warning-400';
+        return 'text-error-400';
+    };
+
+    const getScoreBg = (score) => {
+        if (score >= 85) return 'from-success-500/20 to-success-500/5';
+        if (score >= 70) return 'from-primary-500/20 to-primary-500/5';
+        if (score >= 55) return 'from-warning-500/20 to-warning-500/5';
+        return 'from-error-500/20 to-error-500/5';
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-[60vh] flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-8 h-8 lg:w-12 lg:h-12 border-3 lg:border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-3 lg:mb-4" />
+                    <p className="text-surface-500 text-xs sm:text-sm lg:text-base">Generating report...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || !report) {
+        return (
+            <div className="min-h-[60vh] flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-error-400 text-xs sm:text-sm mb-3">Failed to load report</p>
+                    <Link to="/dashboard" className="bg-primary-500 hover:bg-primary-600 text-white text-xs font-medium px-4 py-2 rounded-lg transition-all">
+                        Go to Dashboard
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    const { session, overallScores, analytics, responses, summary } = report;
+
+    return (
+        <div ref={reportRef} className="max-w-5xl mx-auto space-y-4 sm:space-y-6 lg:space-y-8">
+            {/* Header */}
+            <div className="flex flex-col gap-3 sm:gap-4">
+                <div className="text-center sm:text-left">
+                    <Link to="/dashboard" className="text-surface-400 hover:text-surface-800 inline-flex items-center gap-1 mb-1 lg:mb-2 text-[10px] sm:text-xs lg:text-sm">
+                        <ArrowLeft className="w-3 h-3 lg:w-4 lg:h-4" />
+                        Back to Dashboard
+                    </Link>
+                    <h1 className="text-lg sm:text-xl lg:text-3xl font-bold text-surface-800">Interview Report</h1>
+                    <p className="text-surface-500 capitalize text-[10px] sm:text-xs lg:text-sm">
+                        {session?.interviewType} Interview • {new Date(session?.completedAt).toLocaleDateString()}
+                    </p>
+                </div>
+                {/* Action buttons */}
+                <div className="flex items-center justify-center sm:justify-start gap-2 lg:gap-3">
+                    <button className="p-2 lg:p-3 rounded-lg lg:rounded-xl bg-surface-200/50 text-surface-500 hover:bg-surface-300 transition-colors">
+                        <Share2 className="w-4 h-4 lg:w-5 lg:h-5" />
+                    </button>
+                    <button
+                        onClick={handleDownloadPDF}
+                        disabled={isDownloading}
+                        className="px-3 lg:px-4 py-1.5 lg:py-2 rounded-lg lg:rounded-xl bg-primary-500 hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-[10px] sm:text-xs lg:text-sm font-medium flex items-center gap-1.5 lg:gap-2 transition-colors"
+                    >
+                        <Download className="w-3 h-3 lg:w-4 lg:h-4" />
+                        <span className="hidden sm:inline">{isDownloading ? 'Generating...' : 'Download'}</span> PDF
+                    </button>
+                </div>
+            </div>
+
+            {/* Overall Score Card */}
+            <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`bg-surface-100/80 backdrop-blur-sm rounded-xl lg:rounded-2xl border border-surface-200/50 p-4 sm:p-5 lg:p-8 bg-gradient-to-br ${getScoreBg(overallScores?.overall || 0)}`}
+            >
+                <div className="text-center mb-4 sm:mb-5 lg:mb-8">
+                    <p className="text-surface-400 text-[10px] sm:text-xs lg:text-sm mb-1">Overall Score</p>
+                    <div className={`text-3xl sm:text-4xl lg:text-6xl font-bold ${getScoreColor(overallScores?.overall || 0)}`}>
+                        {overallScores?.overall || 0}%
+                    </div>
+                    <p className="text-surface-500 text-xs sm:text-sm lg:text-base mt-1 lg:mt-2">
+                        {overallScores?.overall >= 85 ? 'Excellent!' :
+                            overallScores?.overall >= 70 ? 'Good Job!' :
+                                overallScores?.overall >= 55 ? 'Keep Going' :
+                                    'Keep Practicing'}
+                    </p>
+                </div>
+
+                {/* Score Breakdown - 3 cols mobile, 6 cols desktop */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-6">
+                    {[
+                        { key: 'correctness', icon: Target, label: 'Correctness' },
+                        { key: 'reasoning', icon: Brain, label: 'Reasoning' },
+                        { key: 'communication', icon: MessageSquare, label: 'Comm.' },
+                        { key: 'structure', icon: Layers, label: 'Structure' },
+                        { key: 'confidence', icon: TrendingUp, label: 'Confidence' },
+                        { key: 'postureAndPresence', icon: Award, label: 'Presence' }
+                    ].map(({ key, icon: Icon, label }) => (
+                        <div key={key} className="text-center">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 rounded-lg lg:rounded-xl bg-surface-200/50 flex items-center justify-center mx-auto mb-1 lg:mb-2">
+                                <Icon className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-7 lg:h-7 ${getScoreColor(overallScores?.[key] || 0)}`} />
+                            </div>
+                            <div className={`text-xs sm:text-sm lg:text-lg font-bold ${getScoreColor(overallScores?.[key] || 0)}`}>
+                                {overallScores?.[key] || 0}%
+                            </div>
+                            <div className="text-surface-400 text-[8px] sm:text-[10px] lg:text-xs truncate">{label}</div>
+                        </div>
+                    ))}
+                </div>
+            </motion.div>
+
+            {/* Stats Row */}
+            <div className="grid grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+                {[
+                    { icon: Clock, label: 'Duration', value: `${Math.floor((session?.duration || 0) / 60)}m` },
+                    { icon: BarChart3, label: 'Questions', value: `${report.progress?.questionsAnswered || 0}` },
+                    { icon: Target, label: 'Level', value: session?.difficulty?.initial || 'Med' },
+                    { icon: Award, label: 'Trend', value: analytics?.performanceTrend || '-' }
+                ].map((stat, i) => (
+                    <motion.div
+                        key={stat.label}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="bg-surface-100/60 border border-surface-200/50 rounded-lg lg:rounded-xl p-2.5 sm:p-3 lg:p-4 text-center"
+                    >
+                        <stat.icon className="w-4 h-4 lg:w-6 lg:h-6 text-primary-400 mx-auto mb-1 lg:mb-2" />
+                        <p className="text-xs sm:text-sm lg:text-lg font-semibold text-surface-800 capitalize truncate">{stat.value}</p>
+                        <p className="text-surface-400 text-[9px] sm:text-xs lg:text-sm">{stat.label}</p>
+                    </motion.div>
+                ))}
+            </div>
+
+            {/* Strengths & Weaknesses */}
+            <div className="grid gap-3 sm:gap-4 grid-cols-2">
+                {/* Strengths */}
+                <motion.div
+                    initial={{ opacity: 0, x: -15 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-surface-100/60 border border-surface-200/50 rounded-lg p-3 sm:p-4"
+                >
+                    <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-1.5">
+                        <CheckCircle className="w-3.5 h-3.5 text-success-400" />
+                        Strengths
+                    </h3>
+                    {analytics?.strengthAreas?.length > 0 ? (
+                        <ul className="space-y-1.5">
+                            {analytics.strengthAreas.slice(0, 3).map((strength, i) => (
+                                <li key={i} className="flex items-start gap-1.5 text-surface-500 text-[10px] sm:text-xs leading-relaxed">
+                                    <CheckCircle className="w-3 h-3 text-success-400 flex-shrink-0 mt-0.5" />
+                                    <span className="line-clamp-2">{strength}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-surface-400 text-[10px] sm:text-xs">Complete interviews to see</p>
+                    )}
+                </motion.div>
+
+                {/* Weaknesses */}
+                <motion.div
+                    initial={{ opacity: 0, x: 15 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="bg-surface-100/60 border border-surface-200/50 rounded-lg p-3 sm:p-4"
+                >
+                    <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5 text-warning-400" />
+                        To Improve
+                    </h3>
+                    {analytics?.weaknessAreas?.length > 0 ? (
+                        <ul className="space-y-1.5">
+                            {analytics.weaknessAreas.slice(0, 3).map((weakness, i) => (
+                                <li key={i} className="flex items-start gap-1.5 text-surface-500 text-[10px] sm:text-xs leading-relaxed">
+                                    <AlertCircle className="w-3 h-3 text-warning-400 flex-shrink-0 mt-0.5" />
+                                    <span className="line-clamp-2">{weakness}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="text-surface-400 text-[10px] sm:text-xs">Great job!</p>
+                    )}
+                </motion.div>
+            </div>
+
+            {/* Behavior & Presence Analysis */}
+            {responses && responses.some(r => r.bodyLanguageAnalysis) && (
+                <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-surface-100/60 border border-surface-200/50 rounded-lg p-3 sm:p-4 pb-2"
+                >
+                    <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-secondary-500" />
+                        Behavior & Eye Tracking
+                    </h3>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                        <div className="p-2 sm:p-3 bg-surface-200/50 rounded-lg border border-surface-300/30 text-center">
+                            <p className="text-[10px] text-surface-400 mb-1">Eye Contact</p>
+                            <p className={`text-lg sm:text-2xl font-bold ${getScoreColor(Math.round(responses.reduce((acc, r) => acc + (r.bodyLanguageAnalysis?.eyeContactScore || 0), 0) / responses.length))}`}>
+                                {Math.round(responses.reduce((acc, r) => acc + (r.bodyLanguageAnalysis?.eyeContactScore || 0), 0) / responses.length) || 0}%
+                            </p>
+                        </div>
+                        <div className="p-2 sm:p-3 bg-surface-200/50 rounded-lg border border-surface-300/30 text-center">
+                            <p className="text-[10px] text-surface-400 mb-1">Posture Score</p>
+                            <p className={`text-lg sm:text-2xl font-bold ${getScoreColor(Math.round(responses.reduce((acc, r) => acc + (r.bodyLanguageAnalysis?.postureScore || 0), 0) / responses.length))}`}>
+                                {Math.round(responses.reduce((acc, r) => acc + (r.bodyLanguageAnalysis?.postureScore || 0), 0) / responses.length) || 0}%
+                            </p>
+                        </div>
+                        <div className="p-2 sm:p-3 bg-surface-200/50 rounded-lg border border-surface-300/30 text-center">
+                            <p className="text-[10px] text-surface-400 mb-1">Rapid Fidgets</p>
+                            <p className="text-lg sm:text-2xl font-bold text-surface-800">
+                                {responses.reduce((acc, r) => acc + (r.bodyLanguageAnalysis?.fidgetCount || 0), 0)}
+                            </p>
+                        </div>
+                        <div className="p-2 sm:p-3 bg-surface-200/50 rounded-lg border border-surface-300/30 text-center flex flex-col justify-center">
+                            <p className="text-[10px] text-surface-400 mb-1">Overall Status</p>
+                            <p className={`text-xs sm:text-sm font-bold uppercase tracking-wider ${getScoreColor(overallScores?.postureAndPresence || 0)}`}>
+                                {overallScores?.postureAndPresence >= 85 ? 'Excellent' : overallScores?.postureAndPresence >= 70 ? 'Adequate' : 'Suspicious'}
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* AI Improvement Plan */}
+            {analytics?.improvementPlan && (
+                <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-surface-100/60 border border-surface-200/50 rounded-lg p-3 sm:p-4"
+                >
+                    <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-1.5">
+                        <Lightbulb className="w-3.5 h-3.5 text-primary-400" />
+                        Improvement Plan
+                    </h3>
+
+                    {analytics.improvementPlan.summary && (
+                        <p className="text-surface-500 text-[10px] sm:text-xs mb-3 leading-relaxed line-clamp-3">{analytics.improvementPlan.summary}</p>
+                    )}
+
+                    {analytics.improvementPlan.focusAreas?.length > 0 && (
+                        <div className="mb-3">
+                            <h4 className="text-[10px] sm:text-xs font-medium text-surface-400 mb-1.5">Focus Areas</h4>
+                            <div className="flex flex-wrap gap-1">
+                                {analytics.improvementPlan.focusAreas.slice(0, 4).map((area, i) => (
+                                    <span key={i} className="px-1.5 py-0.5 rounded bg-primary-500/15 text-primary-400 text-[9px] sm:text-[10px]">
+                                        {area}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {analytics.improvementPlan.recommendedPractice?.length > 0 && (
+                        <div>
+                            <h4 className="text-[10px] sm:text-xs font-medium text-surface-400 mb-1.5">Practice</h4>
+                            <div className="space-y-1.5">
+                                {analytics.improvementPlan.recommendedPractice.slice(0, 2).map((practice, i) => (
+                                    <div key={i} className="p-2 bg-surface-200/50 rounded-lg">
+                                        <div className="flex items-center justify-between mb-1">
+                                            <span className="font-medium text-surface-800 text-[10px] sm:text-xs">{practice.topic}</span>
+                                            <span className={`px-1 py-0.5 rounded text-[8px] ${practice.priority === 'high' ? 'bg-error-500/15 text-error-400' :
+                                                practice.priority === 'medium' ? 'bg-warning-500/15 text-warning-400' :
+                                                    'bg-surface-300 text-surface-500'
+                                                }`}>
+                                                {practice.priority}
+                                            </span>
+                                        </div>
+                                        {practice.suggestedQuestions?.length > 0 && (
+                                            <ul className="text-[9px] sm:text-[10px] text-surface-400 space-y-0.5">
+                                                {practice.suggestedQuestions.slice(0, 2).map((q, j) => (
+                                                    <li key={j} className="truncate">• {q}</li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </motion.div>
+            )}
+
+            {/* Question-by-Question Breakdown */}
+            <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-surface-100/60 border border-surface-200/50 rounded-lg p-3 sm:p-4"
+            >
+                <h3 className="text-xs sm:text-sm font-semibold text-surface-800 mb-2 sm:mb-3 flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-primary-400" />
+                    Questions
+                </h3>
+
+                <div className="space-y-2">
+                    {responses?.map((response, index) => (
+                        <div key={index} className="p-2 sm:p-2.5 bg-surface-200/50 rounded-lg">
+                            <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-1.5 mb-1">
+                                        <span className="text-[10px] text-primary-400 font-medium">Q{response.questionIndex + 1}</span>
+                                        <span className="px-1 py-0.5 rounded bg-surface-300 text-surface-500 text-[8px] capitalize">{response.difficulty}</span>
+                                    </div>
+                                    <p className="text-surface-800 text-[10px] sm:text-xs line-clamp-2">{response.question}</p>
+                                </div>
+                                <div className={`text-sm sm:text-base font-bold flex-shrink-0 ${getScoreColor(response.scores?.overall?.score || response.scores?.overall || 0)}`}>
+                                    {response.scores?.overall?.score || response.scores?.overall || 0}%
+                                </div>
+                            </div>
+
+                            {(response.strengths?.length > 0 || response.weaknesses?.length > 0) && (
+                                <div className="flex flex-wrap gap-1 mt-1.5 pt-1.5 border-t border-surface-300/50">
+                                    {response.strengths?.slice(0, 2).map((s, i) => (
+                                        <span key={i} className="px-1 py-0.5 bg-success-500/10 text-success-400 rounded text-[8px]">
+                                            ✓ {s}
+                                        </span>
+                                    ))}
+                                    {response.weaknesses?.slice(0, 2).map((w, i) => (
+                                        <span key={i} className="px-1 py-0.5 bg-warning-500/10 text-warning-400 rounded text-[8px]">
+                                            ! {w}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            </motion.div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-center gap-2 sm:gap-3">
+                <Link to="/interview/new" className="bg-primary-500 hover:bg-primary-600 text-white text-xs font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 shadow-lg shadow-primary-500/20 transition-all">
+                    New Interview
+                    <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+                <Link to="/analytics" className="bg-surface-200/80 hover:bg-surface-300 text-surface-800 text-xs font-medium px-4 py-2 rounded-lg transition-all">
+                    Analytics
+                </Link>
+            </div>
+        </div>
+    );
+}
