@@ -1,147 +1,112 @@
-﻿<h1 align="center">
-  <br>
-  ðŸŽ¯ JDAK-SSHA15: Adaptive AI Interviewer Platform
-  <br>
-</h1>
-
-<h4 align="center">Cognitive & Behavioral Analysis for Interview Preparation Powered By Gemini AI</h4>
+﻿# 🎯 JDAK-SSHA15: Adaptive AI Interviewer Platform
 
 <p align="center">
-  <a href="#-about-the-project">About</a> â€¢
-  <a href="#-the-problem">The Problem</a> â€¢
-  <a href="#-the-solution">The Solution</a> â€¢
-  <a href="#-key-features">Key Features</a> â€¢
-  <a href="#-tech-stack">Tech Stack</a> â€¢
-  <a href="#-local-setup">Local Setup</a>
+  <img src="https://img.shields.io/badge/Gemini%202.0-AI-blue?style=for-the-badge&logo=google-cloud&logoColor=white" alt="Gemini 2.0" />
+  <img src="https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 18" />
+  <img src="https://img.shields.io/badge/Node.js-Backend-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Hackathon-Submission-orange?style=for-the-badge" alt="Hackathon" />
 </p>
 
 ---
 
-## ðŸš€ About the Project
+## 🚀 Overview
 
-**Adaptive AI Interviewer** is a production-ready SaaS platform that uses **Google Gemini 2.0 AI** to conduct intelligent mock interviews. Wait, this isn't just another QA chatbot! Our platform dynamically adjusts question difficulty based on your performance in real-time, analyzes your voice (hesitations, pauses, filler words), and delivers comprehensive analytics to help you land your dream job.
+**JDAK-SSHA15** is an advanced, production-grade SaaS platform designed to revolutionize interview preparation. Unlike standard mock interview tools, our platform leverages **Google Gemini 2.0 AI** to provide a truly dynamic and adaptive experience that mirrors real-world high-stakes interviews.
 
-**Built for Hackathons**: Showcasing the power of Gemini 2.0, WebSockets for real-time interaction, Speech-to-Text processing, and an elegant, premium, lightweight UI design.
-
----
-
-## ðŸ§  The Problem
-
-1. **High Interview Anxiety:** Candidates often struggle with nerves under pressure, and practicing with friends doesn't replicate the stress of a real interview.
-2. **Lack of Constructive Feedback:** You either pass or fail an interview, but rarely get a detailed breakdown of *why*. Was it your logic? Your communication clarity?
-3. **Static Practice Tools:** Existing mock interview apps give the same standard array of questions without adapting to the candidate's skill level. Real interviews probe deeper when you do wellâ€”static apps do not.
+> **"It's not just a chatbot—it's your personalized career coach."**
 
 ---
 
-## ðŸ’¡ The Solution
+## 🧠 The Problem & Our Solution
 
-An **AI-driven Interviewer** that acts like a real human!
-- It **listens** to you and analyzes your speech flow.
-- It **thinks** about your responses using Gemini 2.0 to evaluate correct logical reasoning.
-- It **adapts** by asking context-aware follow-up questions tailored to probe your weaknesses and highlight your strengths.
-- It provides a detailed **post-interview report** outlining your specific strengths, weaknesses, Confidence Score, and Communication Clarity Score.
+### ❌ The Challenges
+- **Interview Anxiety:** Practicing alone or with friends lacks the pressure of a real technical round.
+- **Vague Feedback:** "You did okay" doesn't help. Candidates need data-driven insights.
+- **Static Learning:** Generic question banks don't adapt to your unique skill level.
 
----
-
-## âœ¨ Key Features
-
-### ðŸŽ™ Real-time Voice Analysis
-- **Hesitation & Filler Detection:** Identifies uncertainty ("um", "uh", "like") to help you speak with more authority.
-- **Pacing Metrics:** Measures response time and pause durations.
-- **Confidence Scoring:** Analyzes your speech patterns to deliver a measurable confidence rating.
-
-### ðŸ¤– Adaptive AI using Gemini 2.0
-- **Dynamic Difficulty:** Questions get harder as you answer correctly, just like in a FAANG interview.
-- **Follow-up Generation:** Intelligent probing based directly on what you just said.
-- **Contextual Awareness:** Remembers previous answers to challenge inconsistencies in your reasoning.
-
-### ðŸ“Š Comprehensive Analytics Dashboard
-- Actionable post-interview breakdown.
-- Visual metrics for **Reasoning Score**, **Communication Clarity**, and **Confidence**.
-- A personalized **AI Improvement Plan** to guide your future preparation.
-
-### ðŸŽ­ Multi-style Interviewer Personas
-- **ðŸ”¥ Strict Mode:** Rigorous questioning (think Tier-1 Tech companies).
-- **ðŸ˜Š Friendly Mode:** Supportive and encouraging behavior for beginners.
-- **ðŸ¢ Professional Mode:** Standard corporate style.
+### ✅ Our Innovation
+- **Adaptive Questioning:** The AI senses your level. If you're crushing it, the questions get harder—just like in a real FAANG interview.
+- **Voice Intelligence:** We analyze your **pacing, hesitations, and filler words** to score your communication clarity.
+- **Actionable Analytics:** Get a personalized **AI Improvement Plan** after every session.
 
 ---
 
-## ðŸ›  Tech Stack
+## ✨ Key Features
 
-### Frontend
-- **React.js 18** - UI Architecture
-- **Tailwind CSS** - Clean, modern, light-theme styling
-- **Framer Motion** - Fluid, premium layout animations
-- **Socket.io Client** - WebSockets for real-time UI updates
-- **React Camera/Media Devices** - Candidate Face Tracking and capture
+### 🎙️ Advanced Vocal Analysis
+- **Emotional & Confidence Scoring:** Uses speech patterns to detect nerves vs. authority.
+- **Filler Word Detection:** Tracks "ums", "uhs", and "likes" in real-time.
+- **Pacing Metrics:** Measures response time and pause durations for better flow.
 
-### Backend
-- **Node.js & Express.js** - Blazing-fast API design
-- **JSON File Database** - Lightweight, file-based persistence (Migrated from MongoDB for faster local setup during hackathons)
-- **Socket.io** - WebSocket server for bidirectional audio/data streams
-- **Google Gemini 2.0** - Core LLM engine driving the interview logic
-- **Google Speech-to-Text** - Low-latency audio transcription
+### 🤖 Gemini 2.0 Powered Brain
+- **Contextual Follow-ups:** Probes deeper into your previous answers to test depth of knowledge.
+- **Reasoning Evaluation:** Validates the logic behind your answers, not just keywords.
+- **Multi-Persona:** Toggle between **Strict**, **Friendly**, and **Professional** interviewer styles.
+
+### 📊 Performance Dashboard
+- **Comprehensive Scorecard:** Reasoning, Confidence, and Clarity scores.
+- **Strengths & Weaknesses:** Automated SWOT analysis based on your transcript.
+- **Practice Recommendations:** Curated questions to improve your specific weak spots.
 
 ---
 
-## ðŸ Local Setup
+## 🛠️ Technology Stack
 
-Want to run this locally? Follow these steps:
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 18, Tailwind CSS, Framer Motion, Socket.io Client |
+| **Backend** | Node.js, Express, Lowdb (JSON persistence), WebSockets |
+| **AI Engine** | Google Gemini 2.0 (Vertex AI / Generative AI) |
+| **Voice Processing** | Google Cloud Speech-to-Text |
+| **Deployment** | Docker, Google Cloud Run |
+
+---
+
+## 🏁 Getting Started
 
 ### Prerequisites
 - Node.js 18+
-- Google Gemini API Key
+- [Google Gemini API Key](https://aistudio.google.com/)
 - Google Cloud Service Account (for Speech-to-Text)
 
 ### Installation
 
-**1. Clone the repository**
-```bash
-git clone https://github.com/your-username/AI-Interviewer-main.git
-cd AI-Interviewer-main
-```
+1. **Clone & Install**
+   ```bash
+   git clone https://github.com/anmol0706/JDAK-SSHA15.git
+   cd JDAK-SSHA15
+   npm install
+   ```
 
-**2. Backend Setup**
-```bash
-cd server
-npm install
+2. **Environment Configuration**
+   Create a `.env` file in the `server` directory:
+   ```env
+   GEMINI_API_KEY=your_key_here
+   PORT=5000
+   ```
 
-# Set up environment variables
-cp .env.example .env
-# Edit .env and insert your GEMINI_API_KEY and other credentials
+3. **Run the Application**
+   ```bash
+   # Start Backend (from root)
+   cd server && npm run dev
 
-# Start the backend server (runs on port 5000)
-npm run dev
-```
-
-**3. Frontend Setup**
-```bash
-# Open a new terminal instance
-cd client
-npm install
-
-# Start the frontend server
-npm run dev
-```
-
-The app will instantly launch at `http://localhost:5173`. Dive in and start your first mock interview!
+   # Start Frontend (new terminal)
+   cd client && npm run dev
+   ```
 
 ---
 
-## ðŸš€ Future Roadmap
-
-- **Video Processing:** Add real-time posture, eye-contact, and micro-expression analysis.
-- **Code Editor Integration:** Support for live coding sessions synchronized with the AI.
-- **Community Leaderboards:** Compare your interview scores against global users.
+## 🚀 Roadmap
+- [ ] **Visual Feedback:** Real-time eye-contact and posture analysis via webcam.
+- [ ] **Live Coding:** Integrated sandbox for technical whiteboard sessions.
+- [ ] **ATS Scoring:** Resume-to-Interview alignment scoring.
 
 ---
 
-## ðŸ‘¨â€ðŸ’» Team
+## 👨‍💻 Team: JDAK-SSHA15
 
-- **Anmol (or insert your team name)** - Full Stack Developer & AI Engineer
+Built with ❤️ for the community.  
+**Winner / Participant at Hackathon 2026** 🏆
 
-> **Winner / Participant at [Hackathon Name Here]** ðŸ†
-> Built with â¤ï¸ to revolutionize interview prep.
-
-# JDAK-SSHA15
+---
+*Developed by Anmol and the JDAK-SSHA15 Team.*
